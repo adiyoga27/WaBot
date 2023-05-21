@@ -1,11 +1,13 @@
-const { Client, LocalAuth, MessageMedia  } = require('whatsapp-web.js')
+const { Client, LocalAuth, MessageMedia, ClientInfo  } = require('whatsapp-web.js')
 const {allClientReady, deleteClient} = require('../Configs/database');
+
 const fs = require('fs');
 
-const qrcode = require('qrcode-terminal');
+const qrcode = require('qrcode');
+const qrcodeTerminal = require('qrcode-terminal');
 const whatsapp = new Map()  
 
-const init = function(apiKey) {
+const init = function(apiKey, io) {
     whatsapp.set(apiKey, {
         ready: false,
         client: new Client({
@@ -34,26 +36,78 @@ const init = function(apiKey) {
     });
     const wa = whatsapp.get(apiKey);
     const client = wa.client;
-  
 
     client.on('qr', (qr) => {
+   
+        qrcode.toDataURL(qr, (err, url) => {
+            io.emit('device', {
+                status : 'scan_qr',
+                api_key: apiKey,
+                ready :  false,
+                qr: url,
+                message: 'Please scan your whatsapp !!!'
+    
+            });
+          });
         qrcode.generate(qr, {small:true})
+        qrcodeTerminal
         console.log('QR RECEIVED', qr)
     });
+    client.on('authenticated', async () => {
+        io.emit('device', {
+            status : 'connected',
+            api_key: apiKey,
+            ready :  true,
+            // name : client.contact.name,
+            // phone: client.contact.number,
+            // message: `Your whatsapp already connected ${client.contact.name} / ${client.contact.number}`
+        });
+      });
+    
+    
+      client.on('auth_failure', function() {
+        io.emit('message', { id: apiKey, text: 'Auth failure, restarting...' });
+        io.emit('device', {
+            status : 'disconnected',
+            api_key: apiKey,
+            ready :  false,
+            message: 'Auth failure, restarting...'
+        });
+      });
+      client.on('disconnected', (reason) => {
+        io.emit('message', { id: apiKey, text: 'Whatsapp is disconnected!' });
+        client.destroy();
+        client.initialize();
+    
+        // Menghapus pada file sessions
+       
+    
+      });    
 
     client.on('ready', () => {
         wa.ready = true;
         whatsapp.set(apiKey, wa)
+        io.emit('device', {
+            status : 'connected',
+            api_key: apiKey,
+            ready :  true,
+            name : client.info.me.user,
+            phone: client.info.pushname,
+            message: `Your whatsapp already connected +${client.info.me.user} / ${client.info.pushname}`
+        });
         console.log('Client is ready!')
     });
-
+    client.on('change_state', async (response) => {
+      console.log("change_state"+response);
+      });
+      
     client.initialize();
 
 }
-const gettingStarted = function(apiKey) {
+const gettingStarted = function(io) {
     allClientReady().then((response) => {
         response.forEach((res) => {
-            init(res.api_key);
+            init(res.api_key, io);
         });
     })
 }
@@ -68,7 +122,7 @@ const logoutDevice = async function(apiKey) {
     
         fs.rmSync(path, { recursive: true, force: true });
         console.log(path);
-        init(apiKey);
+        init(apiKey, io);
     
         return true;
     } catch (error) {

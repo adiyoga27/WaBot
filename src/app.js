@@ -1,10 +1,11 @@
 const {init, gettingStarted} = require('./Controllers/whatsapp')
 const express = require('express');
 const {routerWithAuth, routerWithOutAuth} = require('./Routes/api');
-
+const {routerWeb} = require('./Routes/web');
+const { initSocket } = require('./Routes/socket')
+const socketIO = require('socket.io');
 const bodyParser = require('body-parser') 
 const process = require('process');
-const socketIO = require('socket.io');
 const http = require('http');
 const port = process.env.APP_PORT || 8001;
 
@@ -13,6 +14,8 @@ const server = http.createServer(app);
 const io = socketIO(server, {
     allowEIO3: true // false by default
 });
+gettingStarted(io);
+
 app.use(express.json());
 app.use(express.urlencoded({
   extended: true
@@ -24,13 +27,18 @@ app.use(
     }),
     bodyParser.json()
   );
+  app.get('/', (req, res) => {
+    res.sendFile('Views/index.html', {
+      root: __dirname
+    });
+  });
+// app.use('/',routerWeb);
 app.use('/', routerWithAuth);
 app.use('/', routerWithOutAuth);
 
-
-gettingStarted();
-
+initSocket(io);
 
 server.listen(port, function() {
     console.log('App running on *: ' + port);
   });
+
