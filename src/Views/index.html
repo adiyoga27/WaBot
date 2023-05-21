@@ -106,7 +106,7 @@
                                 <div class="card-footer">
                                     <center>
                                         <a type="button" class="btn btn-success" id="btn-status" onclick="status()"><i
-                                                class="fa fa-check"></i> &nbspStatus</a>
+                                                class="fa fa-recycle"></i> &nbspRefresh</a>
                                         <a class="btn btn-danger" id="btn-logout" onclick="logout()"><i
                                                 class="fa fa-times" aria-hidden="true"></i>&nbspLogout</a>
 
@@ -160,6 +160,15 @@
                 $('#btn-logout').show();
 
             }
+            if (data.status == 'failed') {
+                $('#device-whatsapp').hide();
+
+                $('#loading').show();
+
+                alert(data.message);
+
+
+            }
             console.log(data);
             // $('#qrcode').attr("src", data.src);
             // $(`.client.client-${data.id} #qrcode`).show();
@@ -168,19 +177,26 @@
 
     function find() {
         apiKey = $('#api-key').val();
+        socket.emit("find", {
+                    api_key: apiKey,
+        });
+        if(apiKey == ""){
+            alert('Kolom apikey tidak boleh kosong !!!');
+            return;
+        }
         $('#loading').show();
-        $('#device-whatsapp').show();
         $('#lines').show();
         $('#sub-title').text('Please Waiting ....');
         $('#title').text("Api Key : "+apiKey);
         socket.emit("init", {
                     api_key: apiKey,
         });
+        $('#device-whatsapp').show();
+
     }
 
     function logout() {
         apiKey = $('#api-key').val();
-
         socket.emit("logout", {
                     api_key: apiKey,
         });

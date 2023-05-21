@@ -1,4 +1,6 @@
 const {whatsapp, init} = require('../Controllers/whatsapp')
+const {checkClientId} = require('../Configs/database');
+const { response } = require('express');
 
 const initSocket = function (io) {
    
@@ -19,6 +21,7 @@ const initSocket = function (io) {
         
         })
         socket.on('status', function(data) {
+            
             const apiKey = data.api_key
             setLoading(io, apiKey);
             const client =  whatsapp.get(data.apikey)?.client;
@@ -63,6 +66,21 @@ const initSocket = function (io) {
 
 
         });
+
+        socket.on('find', function(data){
+            const apiKey = data.api_key
+            setLoading(io, apiKey);
+            checkClientId(apiKey).then((response)=>{
+                if(!response){
+                    io.emit('device', {
+                        status : 'failed',
+                        api_key: apiKey,
+                        ready :  false,
+                        message: `Your apikey not valid, check your apikey`
+                    });
+                }
+            })
+        })
 
     });
     
