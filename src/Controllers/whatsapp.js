@@ -1,5 +1,7 @@
 const { Client, LocalAuth, MessageMedia, ClientInfo  } = require('whatsapp-web.js')
 const {allClientReady, deleteClient} = require('../Configs/database');
+const {infoLog, emergecyLog} = require('../Services/telegram');
+
 const fs = require('fs');
 
 const qrcode = require('qrcode');
@@ -127,6 +129,7 @@ const logoutDevice = async function(apiKey) {
     
         return true;
     } catch (error) {
+        emergecyLog(error)
         return error;
     }
  

@@ -7,6 +7,10 @@ const socketIO = require('socket.io');
 const bodyParser = require('body-parser') 
 const process = require('process');
 const http = require('http');
+const {infoLog, emergecyLog} = require('./Services/telegram');
+const { info } = require('console');
+require('dotenv').config()
+process.setMaxListeners(0);
 const port = process.env.APP_PORT || 2929;
 
 const app = express();
@@ -29,6 +33,8 @@ app.use(
     bodyParser.json()
   );
   app.get('/', (req, res) => {
+    infoLog('Server Getting Started');
+
     res.sendFile('Views/index.html', {
       root: __dirname
     });
@@ -39,6 +45,7 @@ app.use('/', routerWithOutAuth);
 initSocket(io);
 
 server.listen(port, function() {
+    infoLog('Server Getting Started');
     console.log('App running on *: ' + port);
   });
 

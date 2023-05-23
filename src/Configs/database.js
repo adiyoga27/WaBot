@@ -1,10 +1,11 @@
 const mysql = require('mysql');
 const { v4: uuidv4 } = require('uuid');
+require('dotenv').config()
 const connection = mysql.createConnection({
-  host: '103.65.237.213',
-  user: 'root',
-  password: 'Bogis1996_',
-  database: 'WAJS',
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USERNAME,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
 });
 
 connection.connect((error) => {
