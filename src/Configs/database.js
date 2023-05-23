@@ -28,6 +28,18 @@ const checkClientId = function (apiKey) {
         });
       });
 }
+const checkClientWithClientId = function (clientID) {
+  return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM clients WHERE client_id = ?', [clientID], (error, results) => {
+        if (error) {
+          console.error('Gagal mengambil data:', error);
+          reject(error);
+        } else {
+          resolve(results[0]);
+        }
+      });
+    });
+}
 
 const deleteClient = function (apiKey){
   return new Promise((resolve, reject) => {
@@ -41,11 +53,10 @@ const deleteClient = function (apiKey){
     });
   });
 }
-const allClientReady = function(){
+const allClientReady = function(clientID){
   return new Promise((resolve, reject) => {
-    connection.query('SELECT * FROM clients WHERE expired_at >= now() ', (error, results) => {
+    connection.query(`SELECT * FROM clients WHERE expired_at >= now() and client_id LIKE '%${clientID}%'`, (error, results) => {
       if (error) {
-        console.error('Gagal mengambil data:', error);
         reject(false);
       } else {
         resolve(results);
@@ -65,13 +76,14 @@ const createClientId = function (payload) {
   return new Promise((resolve, reject) => {
     connection.query(query, newRecord, (error, result) => {
         if (error){
-          reject(error)
-        };
-        resolve(newRecord)
+          reject(false)
+        }else{
+          resolve(newRecord)
+        }
       });
     });
 }
 
 module.exports = {
-    checkClientId, createClientId, allClientReady, deleteClient
+    checkClientId, createClientId, allClientReady, deleteClient, checkClientWithClientId
 }

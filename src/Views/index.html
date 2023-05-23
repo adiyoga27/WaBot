@@ -138,7 +138,8 @@
                     api_key: apiKey,
         });
         socket.on("device", function (data) {
-            $('#sub-title').text(data.message);
+            if(data.api_key == apiKey){
+                $('#sub-title').text(data.message);
             if (data.status == 'scan_qr') {
                 $('#loading').hide();
                 $('#btn-logout').hide();
@@ -162,14 +163,13 @@
             }
             if (data.status == 'failed') {
                 $('#device-whatsapp').hide();
-
                 $('#loading').show();
-
                 alert(data.message);
-
-
             }
             console.log(data);
+            }
+
+           
             // $('#qrcode').attr("src", data.src);
             // $(`.client.client-${data.id} #qrcode`).show();
         });
@@ -203,7 +203,7 @@
     }
     function status(params) {
         apiKey = $('#api-key').val();
-        socket.emit("init", {
+        socket.emit("refresh", {
                     api_key: apiKey,
         });
     }

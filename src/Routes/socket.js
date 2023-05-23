@@ -8,6 +8,7 @@ const initSocket = function (io) {
         // console.log('Create session: ' );
         socket.on('init', function(data) {
            const client =  whatsapp.get(data.api_key)?.client;
+
            if(client?.info?.me){
             io.emit('device', {
                 status : 'connected',
@@ -53,10 +54,10 @@ const initSocket = function (io) {
 
            
         });
-        socket.on('scan', function(data) {
+        socket.on('refresh', function(data) {
             const apiKey = data.api_key
             setLoading(io, apiKey);
-
+            
             
         });
         socket.on('service', function(data) {

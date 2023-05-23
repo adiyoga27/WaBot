@@ -15,6 +15,7 @@ const io = socketIO(server, {
     allowEIO3: true // false by default
 });
 gettingStarted(io);
+app.set('socketio', io);
 
 app.use(express.json());
 app.use(express.urlencoded({
@@ -35,10 +36,10 @@ app.use(
 // app.use('/',routerWeb);
 app.use('/', routerWithAuth);
 app.use('/', routerWithOutAuth);
-
 initSocket(io);
 
 server.listen(port, function() {
     console.log('App running on *: ' + port);
   });
+
 

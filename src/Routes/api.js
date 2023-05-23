@@ -6,20 +6,48 @@ const express = require('express');
 const routerWithAuth = express.Router();
 const routerWithOutAuth = express.Router();
 routerWithAuth.use(authenticateMiddleware);
-const {createClientId, deleteClient} = require('../Configs/database');
+const {createClientId, deleteClient, allClientReady, checkClientWithClientId} = require('../Configs/database');
 
+routerWithAuth.post('/check-whatsapp', async (req, res) => {
+  validationScheme(req, res);
+
+  const number = phoneNumberFormatter(req.body.number);
+  const wa = whatsapp.get(req.headers.authorization);
+  const client = wa?.client;
+    // Make sure the sender is exists & ready
+    if (!wa?.ready) {
+      return res.status(422).json({
+        status: false,
+        message: `Your whatsapp not ready, check your whatsapp !!!`
+      })
+    }
+    const isRegisteredNumber = await client.isRegisteredUser(number);
+    if (!isRegisteredNumber) {
+      return res.status(200).json({
+        status: false,
+        message: 'The number is not registered'
+      });
+    }
+    return res.status(200).json({
+      status: true,
+      message: 'Whatsapp registered',
+      data: isRegisteredNumber
+    });
+  
+   
+});
 routerWithAuth.post('/send-message', sendMessageSchema, async (req, res) => {
     validationScheme(req, res);
 
     const number = phoneNumberFormatter(req.body.number);
     const message = req.body.message;
     const wa = whatsapp.get(req.headers.authorization);
-    const client = wa.client;
+    const client = wa?.client;
       // Make sure the sender is exists & ready
-      if (!wa.ready) {
+      if (!wa?.ready) {
         return res.status(422).json({
           status: false,
-          message: `The sender:  is not found!`
+          message: `Your whatsapp not ready, check your whatsapp !!!`
         })
       }
       const isRegisteredNumber = await client.isRegisteredUser(number);
@@ -61,7 +89,7 @@ routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
   const caption = req.body.caption;
   const url = req.body.url;
   const wa = whatsapp.get(req.headers.authorization);
-  const client = wa.client;
+  const client = wa?.client;
     // Make sure the sender is exists & ready
     if (!wa.ready) {
       return res.status(422).json({
@@ -118,29 +146,80 @@ routerWithAuth.post('/logout-device', async (req, res) => {
     })
 
 routerWithOutAuth.post('/create-client', async (req, res) => {
-      createClientId({
-        client_id : req.body.client_id,
-        name : req.body.name,
-        description: req.body.description,
-        expired_at : req.body.expired_at
-      }).then((res) => {
+  checkClientWithClientId(req.body.client_id).then((result)=>{
+if(!result){
+  createClientId({
+    client_id : req.body.client_id,
+    name : req.body.name,
+    description: req.body.description,
+    expired_at : req.body.expired_at
+  }).then((response) => {
+    const io = req.app.get('socketio');
+    init(response.api_key, io);
+    return res.status(200).json({
+        status: true,
+        message: "success",
+        data: response
+      });
+  }).catch((error) => {
+    return res.status(400).json({
+      status: false,
+      message: "Gagal create client",
+      data: error
+    });
+  })
+}else{
+  return res.status(500).json({
+    status: false,
+    message: "Your client id is exists",
+    data: result
+  });
+}
+  });
+     
+    })
+
+    routerWithOutAuth.get('/client/:client_id', async (req, res) => {
+    const clientID = req.params.client_id;
+// get url parameters
+      allClientReady(clientID).then((response) => {
         console.log(res);
         // add client();
-        init(res.api_key);
         return res.status(200).json({
             status: true,
             message: "success",
-            data: res
+            data: response
           });
       }).catch((error) => {
         return res.status(500).json({
           status: false,
-          message: "Gagal create",
+          message: "Not Found Client ID",
           data: error
         });
       })
     })
+    routerWithOutAuth.get('/client', async (req, res) => {
+      const clientID = '';
+  // get url parameters
+        allClientReady(clientID).then((response) => {
+          console.log(res);
+          // add client();
+          return res.status(200).json({
+              status: true,
+              message: "success",
+              data: response
+            });
+        }).catch((error) => {
+          return res.status(500).json({
+            status: false,
+            message: "Not Found Client ID",
+            data: error
+          });
+        })
+      })
 
+
+    
     module.exports = {
       routerWithAuth, routerWithOutAuth
     } 

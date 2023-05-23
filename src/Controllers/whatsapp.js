@@ -1,6 +1,5 @@
 const { Client, LocalAuth, MessageMedia, ClientInfo  } = require('whatsapp-web.js')
 const {allClientReady, deleteClient} = require('../Configs/database');
-
 const fs = require('fs');
 
 const qrcode = require('qrcode');
@@ -14,7 +13,7 @@ const init = function(apiKey, io) {
             restartOnAuthFail: true,
             puppeteer: {
                 // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-                executablePath: '/usr/bin/google-chrome-stable',
+                // executablePath: '/usr/bin/google-chrome-stable',
                 headless: true,
                 args: [
                   '--no-sandbox',
@@ -27,6 +26,7 @@ const init = function(apiKey, io) {
                   '--disable-gpu'
                 ],
               },
+              takeoverOnConflict: true,
             authStrategy: new LocalAuth({
                 clientId: apiKey,
                 
@@ -54,6 +54,7 @@ const init = function(apiKey, io) {
         console.log('QR RECEIVED', qr)
     });
     client.on('authenticated', async () => {
+        console.log()
         io.emit('device', {
             status : 'connected',
             api_key: apiKey,
@@ -83,7 +84,9 @@ const init = function(apiKey, io) {
        
     
       });    
-
+      client.on('change_state', state => { 
+        console.log(`Client ${apiKey} state changed to ${state}`)
+      });
     client.on('ready', () => {
         wa.ready = true;
         whatsapp.set(apiKey, wa)
@@ -97,15 +100,13 @@ const init = function(apiKey, io) {
         });
         console.log('Client is ready!')
     });
-    client.on('change_state', async (response) => {
-      console.log("change_state"+response);
-      });
-      
+
     client.initialize();
 
 }
 const gettingStarted = function(io) {
-    allClientReady().then((response) => {
+    allClientReady('').then((response) => {
+        
         response.forEach((res) => {
             init(res.api_key, io);
         });
