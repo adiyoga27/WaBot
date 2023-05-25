@@ -6,7 +6,7 @@ const express = require('express');
 const routerWithAuth = express.Router();
 const routerWithOutAuth = express.Router();
 routerWithAuth.use(authenticateMiddleware);
-const {createClientId, deleteClient, allClientReady, checkClientWithClientId} = require('../Configs/database');
+const {createClientId, deleteClient, allClientReady, checkClientWithClientId, updateClientId} = require('../Configs/database');
 
 routerWithAuth.post('/check-whatsapp', async (req, res) => {
   validationScheme(req, res);
@@ -94,7 +94,7 @@ routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
     if (!wa.ready) {
       return res.status(422).json({
         status: false,
-        message: `The sender:  is not found!`
+        message: `The whatsapp not ready!`
       })
     }
     const isRegisteredNumber = await client.isRegisteredUser(number);
@@ -179,6 +179,37 @@ if(!result){
      
     })
 
+    routerWithOutAuth.put('/update-client/:client_id', async (req, res) => {
+      checkClientWithClientId(req.params.client_id).then((result)=>{
+    if(result){
+      updateClientId({
+        client_id : req.params.client_id,
+        expired_at : req.body.expired_at
+      }).then((response) => {
+ 
+        return res.status(200).json({
+            status: true,
+            message: "success",
+            data: response
+          });
+      }).catch((error) => {
+        return res.status(400).json({
+          status: false,
+          message: "Gagal create client",
+          data: error
+        });
+      })
+    }else{
+      return res.status(500).json({
+        status: false,
+        message: "Your client id not found",
+        data: result
+      });
+    }
+      });
+         
+ })
+
     routerWithOutAuth.get('/client/:client_id', async (req, res) => {
     const clientID = req.params.client_id;
 // get url parameters
@@ -218,8 +249,6 @@ if(!result){
         })
       })
 
-
-    
     module.exports = {
       routerWithAuth, routerWithOutAuth
     } 

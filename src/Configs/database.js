@@ -83,8 +83,23 @@ const createClientId = function (payload) {
         }
       });
     });
+
+}
+
+const updateClientId = function (payload) {
+
+  const query = 'UPDATE clients SET expired_at = ? WHERE client_id = ? ';
+  return new Promise((resolve, reject) => {
+    connection.query(query, [payload.expired_at, payload.client_id], (error, result) => {
+        if (error){
+          reject(false)
+        }else{
+          resolve(result)
+        }
+      });
+    });
 }
 
 module.exports = {
-    checkClientId, createClientId, allClientReady, deleteClient, checkClientWithClientId
+    checkClientId, createClientId, allClientReady, deleteClient, checkClientWithClientId, updateClientId
 }

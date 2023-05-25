@@ -15,7 +15,7 @@ const init = function(apiKey, io) {
             restartOnAuthFail: true,
             puppeteer: {
                 // executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-                // executablePath: '/usr/bin/google-chrome-stable',
+                executablePath: '/usr/bin/google-chrome-stable',
                 headless: true,
                 args: [
                   '--no-sandbox',
