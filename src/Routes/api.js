@@ -7,6 +7,7 @@ const routerWithAuth = express.Router();
 const routerWithOutAuth = express.Router();
 routerWithAuth.use(authenticateMiddleware);
 const {createClientId, deleteClient, allClientReady, checkClientWithClientId, updateClientId} = require('../Configs/database');
+const {infoLog, emergecyLog} = require('../Services/telegram');
 
 routerWithAuth.post('/check-whatsapp', async (req, res) => {
   validationScheme(req, res);
@@ -74,7 +75,8 @@ routerWithAuth.post('/send-message', sendMessageSchema, async (req, res) => {
           }
         });
       }).catch(err => {
-        res.status(500).json({
+        emergecyLog(err)
+        return res.status(500).json({
           status: false,
           message: "Sending message is failed",
           data: err
@@ -121,7 +123,8 @@ routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
         }
       });
     }).catch(err => {
-      res.status(500).json({
+      emergecyLog(err);
+     return res.status(500).json({
         status: false,
         message: "Sending message is failed",
         data: err
@@ -138,6 +141,7 @@ routerWithAuth.post('/logout-device', async (req, res) => {
           message: "success logout",
         });
       }).catch((error)=>{
+        emergecyLog(error);
         return res.status(200).json({
           status: false,
           message: error,
@@ -162,6 +166,7 @@ if(!result){
         data: response
       });
   }).catch((error) => {
+    emergecyLog(error);
     return res.status(400).json({
       status: false,
       message: "Gagal create client",
