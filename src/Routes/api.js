@@ -18,6 +18,7 @@ routerWithAuth.post('/check-whatsapp', async (req, res) => {
     // Make sure the sender is exists & ready
     if (!wa?.ready) {
       return res.status(422).json({
+        code : 400100,
         status: false,
         message: `Your whatsapp not ready, check your whatsapp !!!`
       })
@@ -25,11 +26,13 @@ routerWithAuth.post('/check-whatsapp', async (req, res) => {
     const isRegisteredNumber = await client.isRegisteredUser(number);
     if (!isRegisteredNumber) {
       return res.status(200).json({
+        code : 400101,
         status: false,
         message: 'The number is not registered'
       });
     }
     return res.status(200).json({
+      code : 200000,
       status: true,
       message: 'Whatsapp registered',
       data: isRegisteredNumber
@@ -46,7 +49,8 @@ routerWithAuth.post('/send-message', sendMessageSchema, async (req, res) => {
     const client = wa?.client;
       // Make sure the sender is exists & ready
       if (!wa?.ready) {
-        return res.status(422).json({
+        return res.status(400).json({
+          code: 400100,
           status: false,
           message: `Your whatsapp not ready, check your whatsapp !!!`
         })
@@ -54,6 +58,7 @@ routerWithAuth.post('/send-message', sendMessageSchema, async (req, res) => {
       const isRegisteredNumber = await client.isRegisteredUser(number);
       if (!isRegisteredNumber) {
         return res.status(422).json({
+          code: 422100,
           status: false,
           message: 'The number is not registered'
         });
@@ -61,6 +66,8 @@ routerWithAuth.post('/send-message', sendMessageSchema, async (req, res) => {
     
       client.sendMessage(number, message).then(response => {
         res.status(200).json({
+          code: 200100,
+
           status: true,
           message: "Sending message is successfuly",
           data: {
@@ -77,6 +84,7 @@ routerWithAuth.post('/send-message', sendMessageSchema, async (req, res) => {
       }).catch(err => {
         emergecyLog(err)
         return res.status(500).json({
+          code: 500100,
           status: false,
           message: "Sending message is failed",
           data: err
@@ -94,7 +102,8 @@ routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
   const client = wa?.client;
     // Make sure the sender is exists & ready
     if (!wa.ready) {
-      return res.status(422).json({
+      return res.status(300).json({
+        code: 400200,
         status: false,
         message: `The whatsapp not ready!`
       })
@@ -102,6 +111,7 @@ routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
     const isRegisteredNumber = await client.isRegisteredUser(number);
     if (!isRegisteredNumber) {
       return res.status(422).json({
+        code: 422201,
         status: false,
         message: 'The number is not registered'
       });
@@ -109,6 +119,7 @@ routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
     const media = await MessageMedia.fromUrl(url);
     client.sendMessage(number, media, {caption: caption}).then(response => {
       res.status(200).json({
+        code:200200,
         status: true,
         message: "Sending message is successfuly",
         data:  {

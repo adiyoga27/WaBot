@@ -14,8 +14,8 @@ const initSocket = function (io) {
                 status : 'connected',
                 api_key: data.api_key,
                 ready :  true,
-                name : client.info.me.user,
-                phone: client.info.pushname,
+                name : client.info.pushname,
+                phone: client.info.me.user,
                 message: `Your whatsapp already connected +${client.info.me.user} / ${client.info.pushname}`
             });
            }
@@ -31,8 +31,8 @@ const initSocket = function (io) {
                     status : 'connected',
                     api_key: apiKey,
                     ready :  true,
-                    name : client.info.me.user,
-                    phone: client.info.pushname,
+                    name : client.info.pushname,
+                    phone: client.info.me.user,
                     message: `Your whatsapp already connected +${client.info.me.user} / ${client.info.pushname}`
                 });
             }
