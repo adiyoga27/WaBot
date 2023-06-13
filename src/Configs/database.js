@@ -1,5 +1,7 @@
 const mysql = require('mysql');
 const { v4: uuidv4 } = require('uuid');
+const {infoLog, emergecyLog} = require('../Services/telegram');
+
 require('dotenv').config()
 const connection = mysql.createConnection({
   host: process.env.DATABASE_HOST,
@@ -11,6 +13,7 @@ const connection = mysql.createConnection({
 connection.connect((error) => {
   if (error) {
     console.error('Gagal terhubung ke MySQL:', error);
+    emergecyLog(error);
   } else {
     console.log('Terhubung ke MySQL!');
   }
