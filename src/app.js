@@ -33,7 +33,6 @@ app.use(
     bodyParser.json()
   );
   app.get('/', (req, res) => {
-    infoLog('Server Getting Started');
 
     res.sendFile('Views/index.html', {
       root: __dirname
@@ -45,7 +44,7 @@ app.use('/', routerWithOutAuth);
 initSocket(io);
 
 server.listen(port, function() {
-    infoLog('Server Getting Started');
+    infoLog('Server Getting Started Restart');
     console.log('App running on *: ' + port);
   });
 

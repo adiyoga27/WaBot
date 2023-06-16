@@ -118,7 +118,7 @@ routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
     }
     const media = await MessageMedia.fromUrl(url);
     client.sendMessage(number, media, {caption: caption}).then(response => {
-      res.status(200).json({
+      return res.status(200).json({
         code:200200,
         status: true,
         message: "Sending message is successfuly",
