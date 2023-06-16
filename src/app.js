@@ -8,6 +8,7 @@ const bodyParser = require('body-parser')
 const process = require('process');
 const http = require('http');
 const fs = require('fs');
+const cors = require('cors');
 
 const {infoLog, emergecyLog} = require('./Services/telegram');
 const { info } = require('console');
