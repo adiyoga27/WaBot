@@ -44,6 +44,20 @@ if (process.env.APP_PROTOCOL === "https") {
 // const server = http.createServer(app);
 
 const io = socketIO(server, {
+  cors: {
+    origin: [
+      "http://localhost",
+      "http://127.0.0.1",
+      "http://localhost:7991",
+      "http://127.0.0.1:7991",
+      "http://wabot.galkasoft.id:7991",
+      "https://wabot.galkasoft.id:7991",
+      "https://wacast.my.id:7991",
+      "https://wacast.site.com",
+      "https://onesystem.co.id"
+    ],
+    methods: ["GET", "POST"]
+  },
     allowEIO3: true // false by default
 });
 gettingStarted(io);
@@ -58,6 +72,9 @@ app.use(
       "http://127.0.0.1:7991",
       "http://wabot.galkasoft.id:7991",
       "https://wabot.galkasoft.id:7991",
+      "https://wacast.my.id:7991",
+      "https://wacast.site.com",
+      "https://onesystem.co.id"
     ],
   }),
   bodyParser.urlencoded({

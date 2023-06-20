@@ -117,31 +117,60 @@ routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
       });
     }
     const media = await MessageMedia.fromUrl(url);
-    client.sendMessage(number, media, {caption: caption}).then(response => {
-      return res.status(200).json({
-        code:200200,
-        status: true,
-        message: "Sending message is successfuly",
-        data:  {
-          from: response.from,
-          to: response.to,
-          ack: response.ack,
-          type:response.type,
-          hasMedia: response.hasMedia,
-          body: response.body,
-          deviceType: response.deviceType,
-          timestamp: response.timestamp
-        }
-      });
-    }).catch(err => {
-      emergecyLog(err);
-     return res.status(500).json({
-        status: false,
-        message: "Sending message is failed",
-        data: err
-      });
-    });
+    const response = client.sendMessage(number, media, {caption: caption});
+    return response;
 });
+
+// routerWithAuth.post('/send-media', sendMediaSchema, async (req, res) => {
+//   validationScheme(req, res);
+
+//   const number = phoneNumberFormatter(req.body.number);
+//   const caption = req.body.caption;
+//   const url = req.body.url;
+//   const wa = whatsapp.get(req.headers.authorization);
+//   const client = wa?.client;
+//     // Make sure the sender is exists & ready
+//     if (!wa.ready) {
+//       return res.status(300).json({
+//         code: 400200,
+//         status: false,
+//         message: `The whatsapp not ready!`
+//       })
+//     }
+//     const isRegisteredNumber = await client.isRegisteredUser(number);
+//     if (!isRegisteredNumber) {
+//       return res.status(422).json({
+//         code: 422201,
+//         status: false,
+//         message: 'The number is not registered'
+//       });
+//     }
+//     const media = await MessageMedia.fromUrl(url);
+//     client.sendMessage(number, media, {caption: caption}).then(response => {
+//       return res.status(200).json({
+//         code:200200,
+//         status: true,
+//         message: "Sending message is successfuly",
+//         data:  {
+//           from: response.from,
+//           to: response.to,
+//           ack: response.ack,
+//           type:response.type,
+//           hasMedia: response.hasMedia,
+//           body: response.body,
+//           deviceType: response.deviceType,
+//           timestamp: response.timestamp
+//         }
+//       });
+//     }).catch(err => {
+//       emergecyLog(err);
+//      return res.status(500).json({
+//         status: false,
+//         message: "Sending message is failed",
+//         data: err
+//       });
+//     });
+// });
 
 routerWithAuth.post('/logout-device', async (req, res) => {
       logoutDevice(req.headers.authorization).then((response)=>{
