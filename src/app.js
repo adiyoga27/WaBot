@@ -22,15 +22,15 @@ if (process.env.APP_PROTOCOL === "https") {
   // Certificate
   const credentials = {
     key: fs.readFileSync(
-      "/etc/letsencrypt/live/wabot.galkasoft.id/privkey.pem",
+      "/etc/letsencrypt/live/wacast.my.id/privkey.pem",
       "utf8"
     ),
     cert: fs.readFileSync(
-      "/etc/letsencrypt/live/wabot.galkasoft.id/cert.pem",
+      "/etc/letsencrypt/live/wacast.my.id/cert.pem",
       "utf8"
     ),
     ca: fs.readFileSync(
-      "/etc/letsencrypt/live/wabot.galkasoft.id/chain.pem",
+      "/etc/letsencrypt/live/wacast.my.id/chain.pem",
       "utf8"
     ),
   };
@@ -50,8 +50,8 @@ const io = socketIO(server, {
       "http://127.0.0.1",
       "http://localhost:7991",
       "http://127.0.0.1:7991",
-      "http://wabot.galkasoft.id:7991",
-      "https://wabot.galkasoft.id:7991",
+      "http://wacast.my.id:7991",
+      "https://wacast.my.id:7991",
       "https://wacast.my.id:7991",
       "https://wacast.site.com",
       "https://onesystem.co.id"
@@ -70,8 +70,8 @@ app.use(
       "http://127.0.0.1",
       "http://localhost:7991",
       "http://127.0.0.1:7991",
-      "http://wabot.galkasoft.id:7991",
-      "https://wabot.galkasoft.id:7991",
+      "http://wacast.my.id:7991",
+      "https://wacast.my.id:7991",
       "https://wacast.my.id:7991",
       "https://wacast.site.com",
       "https://onesystem.co.id"
